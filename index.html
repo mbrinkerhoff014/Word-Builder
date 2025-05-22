@@ -33,21 +33,26 @@
     }
     .tile {
       display: inline-block;
-      margin: 5px;
-      padding: 10px 15px;
+      margin: 2px;
+      padding: 8px 10px;
       background: #add8e6;
       border: 1px solid #333;
       cursor: move;
       font-size: 20px;
     }
+    .tile-column {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 30px;
+    }
     .tile-container {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 20px;
+      gap: 4px;
     }
     h4 {
-      margin-top: 30px;
+      margin: 0;
     }
   </style>
 </head>
@@ -64,14 +69,20 @@
 
   <h3>Letters and Sounds</h3>
 
-  <h4>Single Consonants</h4>
-  <div class="tile-container" id="singleConsonants"></div>
-
-  <h4>Consonant Letter Groups</h4>
-  <div class="tile-container" id="consonantGroups"></div>
-
-  <h4>Vowel Teams</h4>
-  <div class="tile-container" id="vowelTeams"></div>
+  <div class="tile-column">
+    <div>
+      <h4>Single Consonants</h4>
+      <div class="tile-container" id="singleConsonants"></div>
+    </div>
+    <div>
+      <h4>Consonant Letter Groups</h4>
+      <div class="tile-container" id="consonantGroups"></div>
+    </div>
+    <div>
+      <h4>Vowel Teams</h4>
+      <div class="tile-container" id="vowelTeams"></div>
+    </div>
+  </div>
 
   <script>
     const specialSplitPatterns = ["a_e", "e_e", "i_e", "o_e", "u_e"];
@@ -138,3 +149,4 @@
   </script>
 </body>
 </html>
+
