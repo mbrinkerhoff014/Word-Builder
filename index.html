@@ -1,58 +1,119 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <title>Word Builder</title>
   <style>
-    .letter {
-      display: inline-block;
-      padding: 10px;
-      margin: 5px;
-      background-color: #add8e6;
-      border: 1px solid #000;
-      cursor: move;
+    body {
+      font-family: sans-serif;
+      padding: 20px;
     }
-    #dropzone {
-      width: 100%;
-      height: 100px;
-      border: 2px dashed #aaa;
-      margin-top: 20px;
-      padding: 10px;
-      background-color: #f0f0f0;
+    #controls {
+      margin-bottom: 20px;
+    }
+    button {
+      margin-right: 10px;
+      padding: 5px 10px;
+    }
+    #dropzones {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+    .dropzone {
+      width: 80px;
+      height: 80px;
+      border: 2px dashed #888;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      background-color: #f9f9f9;
+    }
+    .tile {
+      display: inline-block;
+      margin: 5px;
+      padding: 10px 15px;
+      background: #add8e6;
+      border: 1px solid #333;
+      cursor: move;
+      font-size: 20px;
+    }
+    .tile-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      max-width: 900px;
     }
   </style>
 </head>
 <body>
+  <h2>Word Builder</h2>
 
-<h3>Drag the letters into the area below:</h3>
+  <div id="controls">
+    <button onclick="addBox()">➕ Add Box</button>
+    <button onclick="removeBox()">➖ Remove Box</button>
+    <button onclick="resetBoxes()">🔄 Reset</button>
+  </div>
 
-<div class="letter" draggable="true">A</div>
-<div class="letter" draggable="true">B</div>
-<div class="letter" draggable="true">C</div>
+  <div id="dropzones"></div>
 
-<div id="dropzone">Drop here</div>
+  <h3>Letters and Sounds</h3>
+  <div class="tile-container" id="tileContainer"></div>
 
-<script>
-  const letters = document.querySelectorAll('.letter');
-  const dropzone = document.getElementById('dropzone');
+  <script>
+    const letters = [
+      "a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z",
+      "ch","sh","wh","th","ng","ck","ss","ff","zz","ll","qu","bb","dd","mm","nn","pp","rr","tt","ph","kn","le",
+      "me","ne","ve","tch","dge","ge","ed","se","ce","gh","ze","sc","ti","si","ci","ft","rh","ugh","xe","wr",
+      "ai","ay","a_e","ee","ea","e_e","y","ie","igh","i_e","oa","ow","o_e","oo","ew","ue","u_e","oi","oy","ou",
+      "ow","ar","er","ir","ur","or","oar","oul","aw","eer","ear","air","ey","eigh","aigh","our","ore","al","oe",
+      "ui","au","ere","eir","uy","ure"
+    ];
 
-  letters.forEach(letter => {
-    letter.addEventListener('dragstart', e => {
-      e.dataTransfer.setData('text/plain', e.target.innerText);
+    const dropzoneContainer = document.getElementById('dropzones');
+    const tileContainer = document.getElementById('tileContainer');
+
+    function createTile(text) {
+      const tile = document.createElement('div');
+      tile.className = 'tile';
+      tile.draggable = true;
+      tile.textContent = text;
+      tile.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('text/plain', text);
+      });
+      return tile;
+    }
+
+    function addBox() {
+      const zone = document.createElement('div');
+      zone.className = 'dropzone';
+      zone.addEventListener('dragover', e => e.preventDefault());
+      zone.addEventListener('drop', e => {
+        e.preventDefault();
+        const data = e.dataTransfer.getData('text/plain');
+        zone.textContent = data;
+      });
+      dropzoneContainer.appendChild(zone);
+    }
+
+    function removeBox() {
+      const last = dropzoneContainer.lastElementChild;
+      if (last) dropzoneContainer.removeChild(last);
+    }
+
+    function resetBoxes() {
+      [...dropzoneContainer.children].forEach(zone => zone.textContent = '');
+    }
+
+    // Initialize tile container
+    letters.forEach(letter => {
+      tileContainer.appendChild(createTile(letter));
     });
-  });
 
-  dropzone.addEventListener('dragover', e => {
-    e.preventDefault();
-  });
-
-  dropzone.addEventListener('drop', e => {
-    e.preventDefault();
-    const text = e.dataTransfer.getData('text/plain');
-    const span = document.createElement('span');
-    span.innerText = text;
-    span.style.margin = '5px';
-    dropzone.appendChild(span);
-  });
-</script>
-
+    // Start with a few boxes
+    for (let i = 0; i < 4; i++) addBox();
+  </script>
 </body>
 </html>
