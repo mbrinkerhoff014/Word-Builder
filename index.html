@@ -44,7 +44,10 @@
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      max-width: 900px;
+      margin-bottom: 20px;
+    }
+    h4 {
+      margin-top: 30px;
     }
   </style>
 </head>
@@ -60,20 +63,24 @@
   <div id="dropzones"></div>
 
   <h3>Letters and Sounds</h3>
-  <div class="tile-container" id="tileContainer"></div>
+
+  <h4>Single Consonants</h4>
+  <div class="tile-container" id="singleConsonants"></div>
+
+  <h4>Consonant Letter Groups</h4>
+  <div class="tile-container" id="consonantGroups"></div>
+
+  <h4>Vowel Teams</h4>
+  <div class="tile-container" id="vowelTeams"></div>
 
   <script>
-    const letters = [
-      "a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z",
-      "ch","sh","wh","th","ng","ck","ss","ff","zz","ll","qu","bb","dd","mm","nn","pp","rr","tt","ph","kn","le",
-      "me","ne","ve","tch","dge","ge","ed","se","ce","gh","ze","sc","ti","si","ci","ft","rh","ugh","xe","wr",
-      "ai","ay","a_e","ee","ea","e_e","y","ie","igh","i_e","oa","ow","o_e","oo","ew","ue","u_e","oi","oy","ou",
-      "ow","ar","er","ir","ur","or","oar","oul","aw","eer","ear","air","ey","eigh","aigh","our","ore","al","oe",
-      "ui","au","ere","eir","uy","ure"
-    ];
+    const specialSplitPatterns = ["a_e", "e_e", "i_e", "o_e", "u_e"];
+
+    const singleConsonants = ["b","c","d","f","g","h","j","k","l","m","n","p","q","r","s","t","v","w","x","y","z"];
+    const consonantGroups = ["ch","sh","wh","th","ng","ck","ss","ff","zz","ll","qu","bb","dd","mm","nn","pp","rr","tt","ph","kn","le","me","ne","ve","tch","dge","ge","ed","se","ce","gh","ze","sc","ti","si","ci","ft","rh","ugh","xe","wr"];
+    const vowelTeams = ["a","e","i","o","u","ai","ay","a_e","ee","ea","e_e","y","ie","igh","i_e","oa","ow","o_e","oo","ew","ue","u_e","oi","oy","ou","ow","ar","er","ir","ur","or","oar","oul","aw","eer","ear","air","ey","eigh","aigh","our","ore","al","oe","ui","au","ere","eir","uy","ure"];
 
     const dropzoneContainer = document.getElementById('dropzones');
-    const tileContainer = document.getElementById('tileContainer');
 
     function createTile(text) {
       const tile = document.createElement('div');
@@ -93,7 +100,21 @@
       zone.addEventListener('drop', e => {
         e.preventDefault();
         const data = e.dataTransfer.getData('text/plain');
-        zone.textContent = data;
+
+        if (specialSplitPatterns.includes(data)) {
+          const first = data[0];
+          const last = data[data.length - 1];
+          const zones = document.querySelectorAll('.dropzone');
+          for (let i = 0; i < zones.length - 1; i++) {
+            if (!zones[i].textContent && !zones[i + 1].textContent) {
+              zones[i].textContent = first;
+              zones[i + 1].textContent = last;
+              return;
+            }
+          }
+        } else {
+          e.target.textContent = data;
+        }
       });
       dropzoneContainer.appendChild(zone);
     }
@@ -107,12 +128,12 @@
       [...dropzoneContainer.children].forEach(zone => zone.textContent = '');
     }
 
-    // Initialize tile container
-    letters.forEach(letter => {
-      tileContainer.appendChild(createTile(letter));
-    });
+    // Populate tiles into categories
+    singleConsonants.forEach(l => document.getElementById('singleConsonants').appendChild(createTile(l)));
+    consonantGroups.forEach(l => document.getElementById('consonantGroups').appendChild(createTile(l)));
+    vowelTeams.forEach(l => document.getElementById('vowelTeams').appendChild(createTile(l)));
 
-    // Start with a few boxes
+    // Initial boxes
     for (let i = 0; i < 4; i++) addBox();
   </script>
 </body>
