@@ -51,16 +51,24 @@
       touch-action: none; /* prevents scrolling during drag */
     }
     .tile-section {
-      display: flex;
-      flex-direction: row;
-      gap: 16px; /* reduced spacing between sections */
-      margin-bottom: 20px; /* reduced vertical margin */
-    }
-    .tile-column {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
+  display: flex;
+  flex-direction: row;
+  gap: 16px; /* reduced spacing between sections */
+  margin-bottom: 20px;
+}
+
+.tile-column {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-right: 16px;
+  border-right: 2px solid #ccc;
+}
+
+.tile-column:last-child {
+  border-right: none;
+  padding-right: 0;
+}
     .tile-container {
   display: grid;
   gap: 4px;
@@ -71,11 +79,11 @@
 }
 
 #consonantGroups.tile-container {
-  grid-template-columns: repeat(6, auto);
+  grid-template-columns: repeat(8, auto);
 }
 
 #vowelTeams.tile-container {
-  grid-template-columns: repeat(6, auto);
+  grid-template-columns: repeat(8, auto);
 }
     h4 {
       margin: 0;
