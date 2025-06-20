@@ -34,6 +34,10 @@
       background-color: #f9f9f9;
       border-radius: 15px;
       user-select: none;
+      outline-offset: -3px;
+    }
+    .dropzone:focus {
+      outline: 2px solid #007BFF;
     }
     .tile {
       display: inline-flex;
@@ -51,47 +55,42 @@
       touch-action: none; /* prevents scrolling during drag */
     }
     .tile-section {
-  display: flex;
-  flex-direction: row;
-  gap: 16px; /* reduced spacing between sections */
-  margin-bottom: 20px;
-}
-
-.tile-column {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding-right: 16px;
-  border-right: 2px solid #ccc;
-}
-
-.tile-column:last-child {
-  border-right: none;
-  padding-right: 0;
-}
+      display: flex;
+      flex-direction: row;
+      gap: 16px; /* reduced spacing between sections */
+      margin-bottom: 20px;
+    }
+    .tile-column {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding-right: 16px;
+      border-right: 2px solid #ccc;
+    }
+    .tile-column:last-child {
+      border-right: none;
+      padding-right: 0;
+    }
     .tile-container {
-  display: grid;
-  gap: 4px;
-}
-
-#singleConsonants.tile-container {
-  grid-template-columns: repeat(4, auto);
-}
-
-#consonantGroups.tile-container {
-  grid-template-columns: repeat(8, auto);
-}
-
-#vowelTeams.tile-container {
-  grid-template-columns: repeat(8, auto);
-}
+      display: grid;
+      gap: 4px;
+    }
+    #singleConsonants.tile-container {
+      grid-template-columns: repeat(4, auto);
+    }
+    #consonantGroups.tile-container {
+      grid-template-columns: repeat(8, auto);
+    }
+    #vowelTeams.tile-container {
+      grid-template-columns: repeat(8, auto);
+    }
     h4 {
       margin: 0;
     }
   </style>
 </head>
 <body>
-  
+
   <div id="controls">
     <button onclick="addBox()">➕ Add Box</button>
     <button onclick="removeBox()">➖ Remove Box</button>
@@ -155,14 +154,14 @@
         tile.style.left = '';
         tile.style.top = '';
         tile.style.zIndex = '';
-        
+
         const touch = e.changedTouches[0];
         const dropzone = document.elementFromPoint(touch.clientX, touch.clientY);
-        if (dropzone && dropzone.classList.contains('dropzone') && !dropzone.textContent) {
+        if (dropzone && dropzone.classList.contains('dropzone')) {
           if (specialSplitPatterns.includes(text)) {
             const zones = [...document.querySelectorAll('.dropzone')];
             const idx = zones.indexOf(dropzone);
-            if (idx !== -1 && idx + 2 < zones.length && !zones[idx].textContent && !zones[idx + 2].textContent) {
+            if (idx !== -1 && idx + 2 < zones.length) {
               zones[idx].textContent = text[0];
               zones[idx + 2].textContent = text[text.length - 1];
               return;
@@ -176,39 +175,12 @@
     }
 
     function addBox() {
-  const zone = document.createElement('div');
-  zone.className = 'dropzone';
-  zone.setAttribute('contenteditable', 'true');
-
-  zone.addEventListener('dragover', e => e.preventDefault());
-
-  zone.addEventListener('drop', e => {
-    e.preventDefault();
-    const data = e.dataTransfer.getData('text/plain');
-    const zones = document.querySelectorAll('.dropzone');
-    const thisIndex = Array.from(zones).indexOf(e.target);
-
-    if (specialSplitPatterns.includes(data)) {
-      const first = data[0];
-      const last = data[data.length - 1];
-
-      if (thisIndex !== -1 && thisIndex + 2 < zones.length) {
-        zones[thisIndex].textContent = first;
-        zones[thisIndex + 2].textContent = last;
-      }
-    } else {
-      // Always replace the content (even if not empty)
-      e.target.textContent = data;
-    }
-
-    // Remove any accidental HTML or formatting
-    document.execCommand('insertText', false, e.target.textContent);
-  });
-
-  dropzoneContainer.appendChild(zone);
-}
+      const zone = document.createElement('div');
+      zone.className = 'dropzone';
+      zone.setAttribute('contenteditable', 'true');
 
       zone.addEventListener('dragover', e => e.preventDefault());
+
       zone.addEventListener('drop', e => {
         e.preventDefault();
         const data = e.dataTransfer.getData('text/plain');
@@ -218,21 +190,19 @@
         if (specialSplitPatterns.includes(data)) {
           const first = data[0];
           const last = data[data.length - 1];
-          if (
-            thisIndex !== -1 &&
-            thisIndex + 2 < zones.length &&
-            !zones[thisIndex].textContent &&
-            !zones[thisIndex + 2].textContent
-          ) {
+
+          if (thisIndex !== -1 && thisIndex + 2 < zones.length) {
             zones[thisIndex].textContent = first;
             zones[thisIndex + 2].textContent = last;
           }
         } else {
-          if (!e.target.textContent) {
-            e.target.textContent = data;
-          }
+          e.target.textContent = data;
         }
+
+        // Remove formatting that might have been inserted
+        document.execCommand('insertText', false, e.target.textContent);
       });
+
       dropzoneContainer.appendChild(zone);
     }
 
@@ -244,6 +214,13 @@
     function resetBoxes() {
       [...dropzoneContainer.children].forEach(zone => zone.textContent = '');
     }
+
+    // Limit each box to a single character while typing
+    document.addEventListener('input', e => {
+      if (e.target.classList.contains('dropzone')) {
+        e.target.textContent = e.target.textContent.slice(0, 1);
+      }
+    });
 
     // Populate tiles into categories
     singleConsonants.forEach(l => document.getElementById('singleConsonants').appendChild(createTile(l)));
