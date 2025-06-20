@@ -44,26 +44,29 @@
       height: 48px;
       background: #add8e6;
       border: 1px solid #333;
-      cursor: move;
+      cursor: grab;
       font-size: 20px;
       border-radius: 50%;
       user-select: none;
+      touch-action: none; /* prevents scrolling during drag */
     }
     .tile-section {
       display: flex;
       flex-direction: row;
-      gap: 32px;
-      margin-bottom: 30px;
+      gap: 16px; /* reduced spacing between sections */
+      margin-bottom: 20px; /* reduced vertical margin */
     }
     .tile-column {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 4px;
     }
     .tile-container {
-      display: flex;
-      flex-wrap: wrap;
+      display: grid;
       gap: 4px;
+    }
+    #singleConsonants.tile-container {
+      grid-template-columns: repeat(4, auto);
     }
     h4 {
       margin: 0;
@@ -100,7 +103,6 @@
 
   <script>
     const specialSplitPatterns = ["a_e", "e_e", "i_e", "o_e", "u_e"];
-
     const singleConsonants = ["b","c","d","f","g","h","j","k","l","m","n","p","q","r","s","t","v","w","x","y","z"];
     const consonantGroups = ["ch","sh","wh","th","ng","ck","ss","ff","zz","ll","qu","bb","dd","mm","nn","pp","rr","tt","ph","kn","le","me","ne","ve","tch","dge","ge","ed","se","ce","gh","ze","sc","ti","si","ci","ft","rh","ugh","xe","wr"];
     const vowelTeams = ["a","e","i","o","u","ai","ay","a_e","ee","ea","e_e","y","ie","igh","i_e","oa","ow","o_e","oo","ew","ue","u_e","oi","oy","ou","ow","ar","er","ir","ur","or","oar","oul","aw","eer","ear","air","ey","eigh","aigh","our","ore","al","oe","ui","au","ere","eir","uy","ure"];
@@ -112,9 +114,50 @@
       tile.className = 'tile';
       tile.draggable = true;
       tile.textContent = text;
+
       tile.addEventListener('dragstart', e => {
         e.dataTransfer.setData('text/plain', text);
       });
+
+      // Touch support
+      tile.addEventListener('touchstart', function(e) {
+        tile.classList.add('dragging');
+        tile.dataset.touchId = e.changedTouches[0].identifier;
+      });
+
+      tile.addEventListener('touchmove', function(e) {
+        const touch = [...e.changedTouches].find(t => t.identifier == tile.dataset.touchId);
+        if (touch) {
+          tile.style.position = 'absolute';
+          tile.style.left = touch.pageX - 24 + 'px';
+          tile.style.top = touch.pageY - 24 + 'px';
+          tile.style.zIndex = 1000;
+        }
+      });
+
+      tile.addEventListener('touchend', function(e) {
+        tile.classList.remove('dragging');
+        tile.style.position = '';
+        tile.style.left = '';
+        tile.style.top = '';
+        tile.style.zIndex = '';
+        
+        const touch = e.changedTouches[0];
+        const dropzone = document.elementFromPoint(touch.clientX, touch.clientY);
+        if (dropzone && dropzone.classList.contains('dropzone') && !dropzone.textContent) {
+          if (specialSplitPatterns.includes(text)) {
+            const zones = [...document.querySelectorAll('.dropzone')];
+            const idx = zones.indexOf(dropzone);
+            if (idx !== -1 && idx + 2 < zones.length && !zones[idx].textContent && !zones[idx + 2].textContent) {
+              zones[idx].textContent = text[0];
+              zones[idx + 2].textContent = text[text.length - 1];
+              return;
+            }
+          }
+          dropzone.textContent = text;
+        }
+      });
+
       return tile;
     }
 
