@@ -91,8 +91,7 @@
   </style>
 </head>
 <body>
-  <h2>Word Builder</h2>
-
+  
   <div id="controls">
     <button onclick="addBox()">➕ Add Box</button>
     <button onclick="removeBox()">➖ Remove Box</button>
@@ -178,7 +177,36 @@
 
     function addBox() {
       const zone = document.createElement('div');
-      zone.className = 'dropzone';
+zone.className = 'dropzone';
+zone.setAttribute('contenteditable', 'true');
+
+zone.addEventListener('dragover', e => e.preventDefault());
+
+zone.addEventListener('drop', e => {
+  e.preventDefault();
+  const data = e.dataTransfer.getData('text/plain');
+  const zones = document.querySelectorAll('.dropzone');
+  const thisIndex = Array.from(zones).indexOf(e.target);
+
+  if (specialSplitPatterns.includes(data)) {
+    const first = data[0];
+    const last = data[data.length - 1];
+    if (
+      thisIndex !== -1 &&
+      thisIndex + 2 < zones.length &&
+      !zones[thisIndex].textContent.trim() &&
+      !zones[thisIndex + 2].textContent.trim()
+    ) {
+      zones[thisIndex].textContent = first;
+      zones[thisIndex + 2].textContent = last;
+    }
+  } else {
+    if (!e.target.textContent.trim()) {
+      e.target.textContent = data;
+    }
+  }
+});
+
       zone.addEventListener('dragover', e => e.preventDefault());
       zone.addEventListener('drop', e => {
         e.preventDefault();
