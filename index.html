@@ -176,36 +176,37 @@
     }
 
     function addBox() {
-      const zone = document.createElement('div');
-zone.className = 'dropzone';
-zone.setAttribute('contenteditable', 'true');
+  const zone = document.createElement('div');
+  zone.className = 'dropzone';
+  zone.setAttribute('contenteditable', 'true');
 
-zone.addEventListener('dragover', e => e.preventDefault());
+  zone.addEventListener('dragover', e => e.preventDefault());
 
-zone.addEventListener('drop', e => {
-  e.preventDefault();
-  const data = e.dataTransfer.getData('text/plain');
-  const zones = document.querySelectorAll('.dropzone');
-  const thisIndex = Array.from(zones).indexOf(e.target);
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    const data = e.dataTransfer.getData('text/plain');
+    const zones = document.querySelectorAll('.dropzone');
+    const thisIndex = Array.from(zones).indexOf(e.target);
 
-  if (specialSplitPatterns.includes(data)) {
-    const first = data[0];
-    const last = data[data.length - 1];
-    if (
-      thisIndex !== -1 &&
-      thisIndex + 2 < zones.length &&
-      !zones[thisIndex].textContent.trim() &&
-      !zones[thisIndex + 2].textContent.trim()
-    ) {
-      zones[thisIndex].textContent = first;
-      zones[thisIndex + 2].textContent = last;
-    }
-  } else {
-    if (!e.target.textContent.trim()) {
+    if (specialSplitPatterns.includes(data)) {
+      const first = data[0];
+      const last = data[data.length - 1];
+
+      if (thisIndex !== -1 && thisIndex + 2 < zones.length) {
+        zones[thisIndex].textContent = first;
+        zones[thisIndex + 2].textContent = last;
+      }
+    } else {
+      // Always replace the content (even if not empty)
       e.target.textContent = data;
     }
-  }
-});
+
+    // Remove any accidental HTML or formatting
+    document.execCommand('insertText', false, e.target.textContent);
+  });
+
+  dropzoneContainer.appendChild(zone);
+}
 
       zone.addEventListener('dragover', e => e.preventDefault());
       zone.addEventListener('drop', e => {
